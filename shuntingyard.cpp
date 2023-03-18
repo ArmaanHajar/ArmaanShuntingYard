@@ -131,15 +131,15 @@ void printPostfix(Node* queueHead, Node* stackHead) {
     cout << endl;
 }
 
-void dequeue(Node* &queueHead, char character) { // remove first data value in queue and save it to a new node
+void dequeue(Node* &queueHead, char character) { // remove first data value in queue
     if (queueHead == NULL) {
-        cout << "Queue is empty" << endl;
+        cout << "dequeue Queue is empty" << endl;
     }
     else if (queueHead->getNext() != NULL) {
        queueHead = queueHead->getNext();
     }
     else if (queueHead->getNext() == NULL) {
-        cout << "The first data value in the queue is: " << queueHead->data << endl;
+        cout << "dequeue The first data value in the queue is: " << queueHead->data << endl;
     }
     else {
         Node* temp = queueHead;
@@ -172,9 +172,9 @@ void push(Node* &stackHead, char character) { // put at the back of the stack
     stackHead->setNext(oldTop);
 }
 
-void pop(Node* &stackHead, char character) { // remove last data value in stack and save it to a new node
+void pop(Node* &stackHead, char character) { // remove last data value in stack
     if (stackHead == NULL) {
-        cout << "Stack is empty" << endl;
+        cout << "pop Stack is empty" << endl;
         return;
     }
     if (stackHead->getNext() != NULL) {
@@ -187,11 +187,11 @@ char peek(Node* stackHead) { // look at last data value in stack
     char lastInStack = NULL;
 
     if (stackHead == NULL) {
-        cout << "Stack is empty 2" << endl;
+        cout << "peek Stack is empty" << endl;
     }
     else {
         lastInStack = stackHead->data;
-        cout << "The last data value in the stack is: " << lastInStack << endl;
+        cout << "peek The last data value in the stack is: " << lastInStack << endl;
     }
     return lastInStack;
 }
