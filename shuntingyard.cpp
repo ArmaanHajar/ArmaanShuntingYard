@@ -34,7 +34,7 @@ void printPostfix(Node* queueHead);
 void dequeue(Node* &queueHead, char character);
 void enqueue(Node* &queueHead, char character);
 void push(Node* &stackHead, char character);
-void pop(Node* &stackHead, char character);
+void pop(Node* &stackHead);
 char peek(Node* stackHead);
 
 int precedence(char character);
@@ -58,10 +58,11 @@ int main() {
             int o1 = precedence(expression[i]);
             int o2 = precedence(peek(stackHead));
             // changed
-            while (o2 != '(' && (o2 > o1 || (o1 == o2 && expression[i] != '^'))) {
-                cout << "(operator function) enqueued and popped " << peek(stackHead) << endl;
+            while (peek(stackHead) != '(' && (o2 > o1 || (o1 == o2 && expression[i] != '^'))) {
                 enqueue(queueHead, peek(stackHead));
-                pop(stackHead, peek(stackHead));
+                cout << "(operator function) enqueued " << peek(stackHead) << endl;
+                pop(stackHead);
+                cout << "(operator function) popped " << peek(stackHead) << endl;
                 cout << "(operator function) top of stack = " << peek(stackHead) << endl;
             }
             cout << "(operator function) pushed " << expression[i] << endl;
@@ -76,10 +77,10 @@ int main() {
                 while (peek(stackHead) != '(') {
                     cout << "(right parenthesis function) enqueued and popped " << peek(stackHead) << endl;
                     enqueue(queueHead, peek(stackHead));
-                    pop(stackHead, peek(stackHead));
+                    pop(stackHead);
                 }
                 cout << "(right parenthesis function) popped " << peek(stackHead) << endl;
-                pop(stackHead, peek(stackHead));
+                pop(stackHead);
             }
         }
         else {
@@ -92,7 +93,7 @@ int main() {
     }
     while (stackHead != NULL) {
         enqueue(queueHead, peek(stackHead));
-        pop(stackHead, peek(stackHead));
+        pop(stackHead);
     }
     cout << "Postfix: "; 
     printPostfix(queueHead);
@@ -120,10 +121,10 @@ void resetQueueAndStack(Node* queueHead, Node* stackHead) {
         dequeue(queueHead, queueHead->data);
     }
     while (stackHead->getNext() != NULL) {
-        pop(stackHead, stackHead->data);
+        pop(stackHead);
     }
     dequeue(queueHead, queueHead->data);
-    pop(stackHead, stackHead->data);
+    pop(stackHead);
 }
 
 void printPostfix(Node* queueHead) {
@@ -168,54 +169,31 @@ void enqueue(Node* &queueHead, char character) { // put at back of the queue
 }
 
 void push(Node* &stackHead, char character) { // put at the top of the stack
-    Node* newCharacter = new Node(character);
+    Node* newNode = new Node(character);
     if (stackHead == NULL) {
-        stackHead = newCharacter;
+        stackHead = newNode;
     }
-    else {
-        while (stackHead->getNext() != NULL) {
-            stackHead = stackHead->getNext();
-        }
-        stackHead->setNext(newCharacter);
+    else{
+        Node* temp = stackHead;
+        temp = newNode->getNext();
+        stackHead = newNode;
     }
 }
 
-void pop(Node* &stackHead, char character) { // remove last data value in stack
+void pop(Node* &stackHead) { // remove last data value in stack
     if (stackHead == NULL) {
-        cout << "pop Stack is empty" << endl;
         return;
     }
-    else {
-        Node* temp = stackHead;
-        while (temp->getNext()->getNext() != NULL) {
-            temp = temp->getNext();
-        }
-        cout << "pop The top data value in the stack is: " << temp->getNext()->data << endl;
-        temp->setNext(NULL);
-    }
-    /*
-    if (stackHead->getNext() != NULL) {
-        stackHead = stackHead->getNext();
-    }
-    else {
-        stackHead = NULL;
-    }
-    */
+    Node* next = stackHead->getNext();
+    delete stackHead;
+    stackHead = next;
 }
 
 char peek(Node* stackHead) { // look at top data value in stack
-    char lastInStack = NULL;
-
+    // look at top data value in stack
     if (stackHead == NULL) {
         cout << "peek Stack is empty" << endl;
+        return 0;
     }
-    else {
-        Node* temp = stackHead;
-        while (temp->getNext() != NULL) {
-            temp = temp->getNext();
-        }
-        lastInStack = temp->data;
-        // cout << "peek The top data value in the stack is: " << lastInStack << endl;
-    }
-    return lastInStack;
+    return stackHead->data;
 }
