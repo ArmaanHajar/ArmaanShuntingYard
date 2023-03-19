@@ -31,15 +31,34 @@ struct Node {
 void resetQueueAndStack(Node* queueHead, Node* stackHead);
 void printPostfix(Node* queueHead);
 
-void dequeue(Node* &queueHead, char character);
+void dequeue(Node* &queueHead);
 void enqueue(Node* &queueHead, char character);
 void push(Node* &stackHead, char character);
 void pop(Node* &stackHead);
 char peek(Node* stackHead);
+char queuePeek(Node* queueHead);
 
 int precedence(char character);
 
 int main() {
+    Node* stackHead = NULL;
+    Node* queueHead = NULL;
+
+    char character;
+    character = '1';
+    enqueue(queueHead, character);
+    character = '2';
+    enqueue(queueHead, character);
+    character = '3';
+    enqueue(queueHead, character);
+
+    for (int i = 0; i < 10; i++) {
+        cout << queuePeek(queueHead) << endl;
+        dequeue(queueHead);
+    }
+
+
+/*
     Node* stackHead = NULL;
     Node* queueHead = NULL;
     char* expression = new char[100];
@@ -99,6 +118,7 @@ int main() {
     printPostfix(queueHead);
     cout << endl;
     return 0;
+    */
 }
 
 int precedence(char character) {
@@ -118,12 +138,12 @@ int precedence(char character) {
 
 void resetQueueAndStack(Node* queueHead, Node* stackHead) {
     while (queueHead->getNext() != NULL) {
-        dequeue(queueHead, queueHead->data);
+        dequeue(queueHead);
     }
     while (stackHead->getNext() != NULL) {
         pop(stackHead);
     }
-    dequeue(queueHead, queueHead->data);
+    dequeue(queueHead);
     pop(stackHead);
 }
 
@@ -135,7 +155,7 @@ void printPostfix(Node* queueHead) {
     cout << queueHead->data << endl;
 }
 
-void dequeue(Node* &queueHead, char character) { // remove first data value in queue
+void dequeue(Node* &queueHead) { // remove first data value in queue
     if (queueHead == NULL) {
         cout << "dequeue Queue is empty" << endl;
     }
@@ -173,10 +193,10 @@ void push(Node* &stackHead, char character) { // put at the top of the stack
     if (stackHead == NULL) {
         stackHead = newNode;
     }
-    else{
+    else {
         Node* temp = stackHead;
-        temp = newNode->getNext();
         stackHead = newNode;
+        stackHead->next = temp;
     }
 }
 
@@ -196,4 +216,13 @@ char peek(Node* stackHead) { // look at top data value in stack
         return 0;
     }
     return stackHead->data;
+}
+
+char queuePeek(Node* queueHead) { // look at top data value in stack
+    // look at top data value in stack
+    if (queueHead == NULL) {
+        cout << "peek Queue is empty" << endl;
+        return 0;
+    }
+    return queueHead->data;
 }
