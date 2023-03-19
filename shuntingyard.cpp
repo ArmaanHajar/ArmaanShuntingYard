@@ -4,8 +4,8 @@
 
 /*
  * Author: Armaan Hajar
- * Date: March 17, 2023
- * Description: This program will take a math expression and convert it to postfix notation, aka the shunting yard algorithm
+ * Date: March 19, 2023
+ * Description: Shunting Yard Algorithm
  */
 
 #include <iostream>
@@ -29,7 +29,7 @@ struct Node {
 };
 
 void resetQueueAndStack(Node* queueHead, Node* stackHead);
-void printPostfix(Node* queueHead, Node* stackHead);
+void printPostfix(Node* queueHead);
 
 void dequeue(Node* &queueHead, char character);
 void enqueue(Node* &queueHead, char character);
@@ -49,31 +49,35 @@ int main() {
     cin.ignore(1, '\n');
 
     for (int i = 0; i < strlen(expression); i++) {
+        cout << "current = " << expression[i] << endl;
         if (isdigit(expression[i])) { // if is a number
             enqueue(queueHead, expression[i]);
-            cout << "queued " << expression[i] << endl;
+            cout << "(number function) queued " << expression[i] << endl;
         }
         else if (expression[i] == '+' || expression[i] == '-' || expression[i] == '*' || expression[i] == '/' || expression[i] == '^') { // if is an operator
-            while ((stackHead != NULL) && // if stack isnt empty and
-            ((precedence(peek(stackHead)) > precedence(expression[i])) || // if it takes precedence over the top of the stack or
-            ((precedence(peek(stackHead)) == precedence(expression[i])) && expression[i] != '^')) && // if it has equal precedence and it's not power and
-            (peek(stackHead) != '(')){ // it's not an opening parenthesis
+            int o1 = precedence(expression[i]);
+            int o2 = precedence(peek(stackHead));
+            while (stackHead != NULL && (o2 > o1 || (o1 == o2 && expression[i] != '^'))) {
+                cout << "(operator function) enqueued and popped " << peek(stackHead) << endl;
                 enqueue(queueHead, peek(stackHead));
                 pop(stackHead, peek(stackHead));
+                cout << "(operator function) top of stack = " << peek(stackHead) << endl;
             }
+            cout << "(operator function) pushed " << expression[i] << endl;
             push(stackHead, expression[i]);
-            cout << "pushed " << expression[i] << endl;
         }
         else if (expression[i] == '(' || expression[i] == ')') {
             if (expression[i] == '(') {
+                cout << "(left parenthesis function) pushed " << expression[i] << endl;
                 push(stackHead, expression[i]);
-                cout << "pushed " << expression[i] << endl;
             }
             else if (expression[i] == ')') {
                 while (peek(stackHead) != '(') {
+                    cout << "(right parenthesis function) enqueued and popped " << peek(stackHead) << endl;
                     enqueue(queueHead, peek(stackHead));
                     pop(stackHead, peek(stackHead));
                 }
+                cout << "(right parenthesis function) popped " << peek(stackHead) << endl;
                 pop(stackHead, peek(stackHead));
             }
         }
@@ -85,8 +89,12 @@ int main() {
             resetQueueAndStack(queueHead, stackHead);
         }
     }
+    while (stackHead != NULL) {
+        enqueue(queueHead, peek(stackHead));
+        pop(stackHead, peek(stackHead));
+    }
     cout << "Postfix: "; 
-    printPostfix(queueHead, stackHead);
+    printPostfix(queueHead);
     cout << endl;
     return 0;
 }
@@ -117,17 +125,12 @@ void resetQueueAndStack(Node* queueHead, Node* stackHead) {
     pop(stackHead, stackHead->data);
 }
 
-void printPostfix(Node* queueHead, Node* stackHead) {
-    char* outputPostfix = new char[100];
-    int index = 0;
+void printPostfix(Node* queueHead) {
     while (queueHead->getNext() != NULL) {
-        outputPostfix[index] = queueHead->data;
-        index++;
+        cout << queueHead->data;
+        queueHead = queueHead->getNext();
     }
-    for (int i = 0; i < strlen(outputPostfix); i++) {
-        cout << outputPostfix[i];
-    }
-    cout << endl;
+    cout << queueHead->data << endl;
 }
 
 void dequeue(Node* &queueHead, char character) { // remove first data value in queue
@@ -169,11 +172,10 @@ void push(Node* &stackHead, char character) { // put at the top of the stack
         stackHead = newCharacter;
     }
     else {
-        Node* temp = stackHead;
-        while (temp->getNext() != NULL) {
-            temp = temp->getNext();
+        while (stackHead->getNext() != NULL) {
+            stackHead = stackHead->getNext();
         }
-        temp->setNext(newCharacter);
+        stackHead->setNext(newCharacter);
     }
 }
 
@@ -200,7 +202,7 @@ char peek(Node* stackHead) { // look at top data value in stack
             temp = temp->getNext();
         }
         lastInStack = temp->data;
-        cout << "peek The top data value in the stack is: " << lastInStack << endl;
+        // cout << "peek The top data value in the stack is: " << lastInStack << endl;
     }
     return lastInStack;
 }
