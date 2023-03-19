@@ -54,10 +54,10 @@ int main() {
             cout << "queued " << expression[i] << endl;
         }
         else if (expression[i] == '+' || expression[i] == '-' || expression[i] == '*' || expression[i] == '/' || expression[i] == '^') { // if is an operator
-            while((stackHead != NULL) && //if there is something in the stack and
-            ((precedence(peek(stackHead)) > precedence(expression[i])) || //if it takes precedence over the top of the stack or
-            ((precedence(peek(stackHead)) == precedence(expression[i])) && expression[i] != '^')) && //if it has equal precedence and it's not power
-            (peek(stackHead) != '(')){//and it's not an opening parenthesis
+            while ((stackHead != NULL) && // if stack isnt empty and
+            ((precedence(peek(stackHead)) > precedence(expression[i])) || // if it takes precedence over the top of the stack or
+            ((precedence(peek(stackHead)) == precedence(expression[i])) && expression[i] != '^')) && // if it has equal precedence and it's not power and
+            (peek(stackHead) != '(')){ // it's not an opening parenthesis
                 enqueue(queueHead, peek(stackHead));
                 pop(stackHead, peek(stackHead));
             }
