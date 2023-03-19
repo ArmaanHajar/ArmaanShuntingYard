@@ -51,31 +51,30 @@ int main() {
     for (int i = 0; i < strlen(expression); i++) {
         if (isdigit(expression[i])) { // if is a number
             enqueue(queueHead, expression[i]);
+            cout << "queued " << expression[i] << endl;
+        }
+        else if (expression[i] == '+' || expression[i] == '-' || expression[i] == '*' || expression[i] == '/' || expression[i] == '^') { // if is an operator
+            while((stackHead != NULL) && //if there is something in the stack and
+            ((precedence(peek(stackHead)) > precedence(expression[i])) || //if it takes precedence over the top of the stack or
+            ((precedence(peek(stackHead)) == precedence(expression[i])) && expression[i] != '^')) && //if it has equal precedence and it's not power
+            (peek(stackHead) != '(')){//and it's not an opening parenthesis
+                enqueue(queueHead, peek(stackHead));
+                pop(stackHead, peek(stackHead));
+            }
+            push(stackHead, expression[i]);
+            cout << "pushed " << expression[i] << endl;
         }
         else if (expression[i] == '(' || expression[i] == ')') {
             if (expression[i] == '(') {
                 push(stackHead, expression[i]);
+                cout << "pushed " << expression[i] << endl;
             }
             else if (expression[i] == ')') {
                 while (peek(stackHead) != '(') {
-                    enqueue(queueHead, expression[i]);
-                    pop(stackHead, expression[i]);
+                    enqueue(queueHead, peek(stackHead));
+                    pop(stackHead, peek(stackHead));
                 }
-                pop(stackHead, expression[i]);
-            }
-        }
-        else if (expression[i] == '+' || expression[i] == '-' || expression[i] == '*' || expression[i] == '/' || expression[i] == '^') { // if is an operator
-            if (stackHead == NULL) {
-                push(stackHead, expression[i]);
-            }
-            else if (precedence(expression[i]) > precedence(stackHead->data)) {
-                push(stackHead, expression[i]);
-            }
-            else if (precedence(expression[i]) <= precedence(stackHead->data)) {
-                while (precedence(expression[i]) <= precedence(stackHead->data)) {
-                    dequeue(queueHead, expression[i]);
-                    pop(stackHead, expression[i]);
-                }
+                pop(stackHead, peek(stackHead));
             }
         }
         else {
@@ -164,12 +163,18 @@ void enqueue(Node* &queueHead, char character) { // put at back of the queue
     }
 }
 
-void push(Node* &stackHead, char character) { // put at the back of the stack
-    Node* newOperator = new Node(character);
-    Node* oldTop = stackHead;
-    stackHead = newOperator;
-    if (oldTop == NULL) return;
-    stackHead->setNext(oldTop);
+void push(Node* &stackHead, char character) { // put at the top of the stack
+    Node* newCharacter = new Node(character);
+    if (stackHead == NULL) {
+        stackHead = newCharacter;
+    }
+    else {
+        Node* temp = stackHead;
+        while (temp->getNext() != NULL) {
+            temp = temp->getNext();
+        }
+        temp->setNext(newCharacter);
+    }
 }
 
 void pop(Node* &stackHead, char character) { // remove last data value in stack
@@ -183,15 +188,19 @@ void pop(Node* &stackHead, char character) { // remove last data value in stack
     else stackHead = NULL;
 }
 
-char peek(Node* stackHead) { // look at last data value in stack
+char peek(Node* stackHead) { // look at top data value in stack
     char lastInStack = NULL;
 
     if (stackHead == NULL) {
         cout << "peek Stack is empty" << endl;
     }
     else {
-        lastInStack = stackHead->data;
-        cout << "peek The last data value in the stack is: " << lastInStack << endl;
+        Node* temp = stackHead;
+        while (temp->getNext() != NULL) {
+            temp = temp->getNext();
+        }
+        lastInStack = temp->data;
+        cout << "peek The top data value in the stack is: " << lastInStack << endl;
     }
     return lastInStack;
 }
