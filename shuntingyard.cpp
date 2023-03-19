@@ -28,77 +28,64 @@ struct Node {
     }
 };
 
+struct BinaryTree {
+    char data;
+    BinaryTree* right;
+    BinaryTree* left;
+    BinaryTree(char newData) {
+        data = newData;
+        right = NULL;
+        left = NULL;
+    }
+};
+
+
 void resetQueueAndStack(Node* queueHead, Node* stackHead);
-void printPostfix(Node* queueHead);
+void postfixToBinaryTree(Node* queueHead, BinaryTree* &treeRoot);
+void treeToInfix(BinaryTree* treeRoot);
+void treeToPrefix(BinaryTree* treeRoot);
+void treeToPostfix(BinaryTree* treeRoot);
 
 void dequeue(Node* &queueHead);
 void enqueue(Node* &queueHead, char character);
 void push(Node* &stackHead, char character);
 void pop(Node* &stackHead);
 char peek(Node* stackHead);
-char queuePeek(Node* queueHead);
 
 int precedence(char character);
 
 int main() {
     Node* stackHead = NULL;
     Node* queueHead = NULL;
-
-    char character;
-    character = '1';
-    enqueue(queueHead, character);
-    character = '2';
-    enqueue(queueHead, character);
-    character = '3';
-    enqueue(queueHead, character);
-
-    for (int i = 0; i < 10; i++) {
-        cout << queuePeek(queueHead) << endl;
-        dequeue(queueHead);
-    }
-
-
-/*
-    Node* stackHead = NULL;
-    Node* queueHead = NULL;
     char* expression = new char[100];
 
+    cout << "----------------------------------------------------------" << endl;
     cout << "Input A Math Expression With No Spaces (Ex: 2+(2*6)-7^4):" << endl;
     cin.get(expression, 100);
     cin.ignore(1, '\n');
 
     for (int i = 0; i < strlen(expression); i++) {
-        cout << "current = " << expression[i] << endl;
         if (isdigit(expression[i])) { // if is a number
             enqueue(queueHead, expression[i]);
-            cout << "(number function) queued " << expression[i] << endl;
         }
         else if (expression[i] == '+' || expression[i] == '-' || expression[i] == '*' || expression[i] == '/' || expression[i] == '^') { // if is an operator
             int o1 = precedence(expression[i]);
             int o2 = precedence(peek(stackHead));
-            // changed
-            while (peek(stackHead) != '(' && (o2 > o1 || (o1 == o2 && expression[i] != '^'))) {
+            while (stackHead != NULL && peek(stackHead) != '(' && (o2 > o1 || (o1 == o2 && expression[i] != '^'))) {
                 enqueue(queueHead, peek(stackHead));
-                cout << "(operator function) enqueued " << peek(stackHead) << endl;
                 pop(stackHead);
-                cout << "(operator function) popped " << peek(stackHead) << endl;
-                cout << "(operator function) top of stack = " << peek(stackHead) << endl;
             }
-            cout << "(operator function) pushed " << expression[i] << endl;
             push(stackHead, expression[i]);
         }
         else if (expression[i] == '(' || expression[i] == ')') {
             if (expression[i] == '(') {
-                cout << "(left parenthesis function) pushed " << expression[i] << endl;
                 push(stackHead, expression[i]);
             }
             else if (expression[i] == ')') {
                 while (peek(stackHead) != '(') {
-                    cout << "(right parenthesis function) enqueued and popped " << peek(stackHead) << endl;
                     enqueue(queueHead, peek(stackHead));
                     pop(stackHead);
                 }
-                cout << "(right parenthesis function) popped " << peek(stackHead) << endl;
                 pop(stackHead);
             }
         }
@@ -114,11 +101,81 @@ int main() {
         enqueue(queueHead, peek(stackHead));
         pop(stackHead);
     }
-    cout << "Postfix: "; 
-    printPostfix(queueHead);
+    BinaryTree* treeRoot = NULL;
+    postfixToBinaryTree(queueHead, treeRoot);
+
+    cout << "Infix: ";
+    treeToInfix(treeRoot);
     cout << endl;
+
+    cout << "Prefix: ";
+    treeToPrefix(treeRoot);
+    cout << endl;
+
+    cout << "Postfix: ";
+    treeToPostfix(treeRoot);
+    cout << endl;
+
+    cout << "----------------------------------------------------------" << endl;
+
     return 0;
-    */
+}
+
+void postfixToBinaryTree(Node* queueHead, BinaryTree* &treeRoot) {
+    Node* temp = queueHead;
+    while (temp != NULL) {
+        if (isdigit(temp->data)) {
+            BinaryTree* newTree = new BinaryTree(temp->data);
+            if (treeRoot == NULL) {
+                treeRoot = newTree;
+            }
+            else {
+                BinaryTree* tempTree = treeRoot;
+                while (tempTree->right != NULL) {
+                    tempTree = tempTree->right;
+                }
+                tempTree->right = newTree;
+            }
+        }
+        else if (temp->data == '+' || temp->data == '-' || temp->data == '*' || temp->data == '/' || temp->data == '^') {
+            BinaryTree* newTree = new BinaryTree(temp->data);
+            if (treeRoot == NULL) {
+                treeRoot = newTree;
+            }
+            else {
+                BinaryTree* tempTree = treeRoot;
+                while (tempTree->left != NULL) {
+                    tempTree = tempTree->left;
+                }
+                tempTree->left = newTree;
+            }
+        }
+        temp = temp->getNext();
+    }
+}
+
+void treeToInfix(BinaryTree* treeRoot) {
+    if (treeRoot != NULL) {
+        treeToInfix(treeRoot->left);
+        cout << treeRoot->data;
+        treeToInfix(treeRoot->right);
+    }
+}
+
+void treeToPrefix(BinaryTree* treeRoot) {
+    if (treeRoot != NULL) {
+        cout << treeRoot->data;
+        treeToPrefix(treeRoot->left);
+        treeToPrefix(treeRoot->right);
+    }
+}
+
+void treeToPostfix(BinaryTree* treeRoot) {
+    if (treeRoot != NULL) {
+        treeToPostfix(treeRoot->left);
+        treeToPostfix(treeRoot->right);
+        cout << treeRoot->data;
+    }
 }
 
 int precedence(char character) {
@@ -147,23 +204,14 @@ void resetQueueAndStack(Node* queueHead, Node* stackHead) {
     pop(stackHead);
 }
 
-void printPostfix(Node* queueHead) {
-    while (queueHead->getNext() != NULL) {
-        cout << queueHead->data;
-        queueHead = queueHead->getNext();
-    }
-    cout << queueHead->data << endl;
-}
-
 void dequeue(Node* &queueHead) { // remove first data value in queue
     if (queueHead == NULL) {
-        cout << "dequeue Queue is empty" << endl;
+        cout << "Queue is empty" << endl;
     }
     else if (queueHead->getNext() != NULL) {
        queueHead = queueHead->getNext();
     }
     else if (queueHead->getNext() == NULL) {
-        cout << "dequeue The first data value in the queue is: " << queueHead->data << endl;
     }
     else {
         Node* temp = queueHead;
@@ -210,19 +258,8 @@ void pop(Node* &stackHead) { // remove last data value in stack
 }
 
 char peek(Node* stackHead) { // look at top data value in stack
-    // look at top data value in stack
     if (stackHead == NULL) {
-        cout << "peek Stack is empty" << endl;
         return 0;
     }
     return stackHead->data;
-}
-
-char queuePeek(Node* queueHead) { // look at top data value in stack
-    // look at top data value in stack
-    if (queueHead == NULL) {
-        cout << "peek Queue is empty" << endl;
-        return 0;
-    }
-    return queueHead->data;
 }
