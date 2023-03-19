@@ -57,7 +57,8 @@ int main() {
         else if (expression[i] == '+' || expression[i] == '-' || expression[i] == '*' || expression[i] == '/' || expression[i] == '^') { // if is an operator
             int o1 = precedence(expression[i]);
             int o2 = precedence(peek(stackHead));
-            while (stackHead != NULL && (o2 > o1 || (o1 == o2 && expression[i] != '^'))) {
+            // changed
+            while (o2 != '(' && (o2 > o1 || (o1 == o2 && expression[i] != '^'))) {
                 cout << "(operator function) enqueued and popped " << peek(stackHead) << endl;
                 enqueue(queueHead, peek(stackHead));
                 pop(stackHead, peek(stackHead));
@@ -184,10 +185,22 @@ void pop(Node* &stackHead, char character) { // remove last data value in stack
         cout << "pop Stack is empty" << endl;
         return;
     }
+    else {
+        Node* temp = stackHead;
+        while (temp->getNext()->getNext() != NULL) {
+            temp = temp->getNext();
+        }
+        cout << "pop The top data value in the stack is: " << temp->getNext()->data << endl;
+        temp->setNext(NULL);
+    }
+    /*
     if (stackHead->getNext() != NULL) {
         stackHead = stackHead->getNext();
     }
-    else stackHead = NULL;
+    else {
+        stackHead = NULL;
+    }
+    */
 }
 
 char peek(Node* stackHead) { // look at top data value in stack
