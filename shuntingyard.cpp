@@ -122,43 +122,35 @@ int main() {
 }
 
 void postfixToBinaryTree(Node* queueHead, BinaryTree* &treeRoot) {
-    Node* temp = queueHead;
-    while (temp != NULL) {
-        if (isdigit(temp->data)) {
-            BinaryTree* newTree = new BinaryTree(temp->data);
-            if (treeRoot == NULL) {
-                treeRoot = newTree;
-            }
-            else {
-                BinaryTree* tempTree = treeRoot;
-                while (tempTree->right != NULL) {
-                    tempTree = tempTree->right;
-                }
-                tempTree->right = newTree;
-            }
+    if (queueHead == NULL) {
+        return;
+    }
+    else {
+        if (isdigit(queueHead->data)) {
+            BinaryTree* newNode = new BinaryTree(queueHead->data);
+            treeRoot = newNode;
         }
-        else if (temp->data == '+' || temp->data == '-' || temp->data == '*' || temp->data == '/' || temp->data == '^') {
-            BinaryTree* newTree = new BinaryTree(temp->data);
-            if (treeRoot == NULL) {
-                treeRoot = newTree;
-            }
-            else {
-                BinaryTree* tempTree = treeRoot;
-                while (tempTree->left != NULL) {
-                    tempTree = tempTree->left;
-                }
-                tempTree->left = newTree;
-            }
+        else {
+            BinaryTree* newNode = new BinaryTree(queueHead->data);
+            treeRoot = newNode;
+            postfixToBinaryTree(queueHead->getNext(), treeRoot->left);
+            postfixToBinaryTree(queueHead->getNext()->getNext(), treeRoot->right);
         }
-        temp = temp->getNext();
     }
 }
 
 void treeToInfix(BinaryTree* treeRoot) {
-    if (treeRoot != NULL) {
-        treeToInfix(treeRoot->left);
-        cout << treeRoot->data;
-        treeToInfix(treeRoot->right);
+    if (treeRoot == NULL) {
+        return;
+    }
+    if (treeRoot->data == '+' || treeRoot->data == '-' || treeRoot->data == '*' || treeRoot->data == '/' || treeRoot->data == '^') {
+        cout << "(";
+    }
+    treeToInfix(treeRoot->left);
+    cout << treeRoot->data;
+    treeToInfix(treeRoot->right);
+    if (treeRoot->data == '+' || treeRoot->data == '-' || treeRoot->data == '*' || treeRoot->data == '/' || treeRoot->data == '^') {
+        cout << ")";
     }
 }
 
